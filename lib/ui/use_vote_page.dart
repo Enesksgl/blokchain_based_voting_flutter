@@ -1,47 +1,72 @@
+import 'package:blokchain_based_voiting/common/api.dart';
+import 'package:blokchain_based_voiting/common/voting.dart';
 import 'package:flutter/material.dart';
 
+import '../common/block.dart';
 import '../common/block_chain.dart';
 
 class UseVotePage extends StatefulWidget {
-  const UseVotePage({Key? key}) : super(key: key);
+  final Voting voting;
+
+  const UseVotePage({Key? key, required this.voting}) : super(key: key);
 
   @override
   State<UseVotePage> createState() => _UseVotePageState();
 }
 
 class _UseVotePageState extends State<UseVotePage> {
-  BlockChain? blockChain;
-
-  @override
-  void initState() {
-    super.initState();
-    blockChain = BlockChain();
-  }
+  Block? block;
+  String? vote;
 
   @override
   Widget build(BuildContext context) {
-    if (blockChain!.chain.isEmpty) {
-      setState(() {});
-      return const CircularProgressIndicator();
-    } else {
-      return Scaffold(
-        backgroundColor: Colors.grey,
-        appBar: AppBar(title: const Text("Seçim Adı")),
-        body: Column(
-          children: [
-            ElevatedButton(onPressed: () => setState(() => blockChain!.addBlock("data")), child: const Text("Blok Ekle")),
-            Flexible(
-              child: ListView.builder(
-                  itemCount: blockChain!.chain.length,
-                  itemBuilder: (BuildContext context, index) => Card(
-                        child: Text(
-                          blockChain!.chain[index].toString(),
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.voting.name)),
+      body: Column(
+        children: [
+          ElevatedButton(
+              onPressed: () => ApiService().getLastBlock(widget.voting.id).then((value) {
+                    block = value!;
+                    setState(() {});
+                  }),
+              child: const Text("Son Block")),
+          Card(child: Text(block != null ? block.toString() : "")),
+          Column(
+              children: widget.voting.options
+                  .map((o) => InkWell(
+                        onTap: () {
+                          setState(() {
+                            vote = o;
+                          });
+                        },
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          height: 50,
+                          child: Card(
+                            child: Center(
+                              child: Text(
+                                o,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                  color: vote == o ? Colors.white : Colors.black,
+                                ),
+                              ),
+                            ),
+                            color: vote == o ? Colors.blue : Colors.white60,
+                          ),
                         ),
-                      )),
-            ),
-          ],
-        ),
-      );
-    }
+                      ))
+                  .toList()),
+          ElevatedButton(
+              onPressed: vote != null
+                  ? () => ApiService().addBlock(vote!, widget.voting.id).then((value) {
+                        setState(() {});
+                      })
+                  : null,
+              child: const Text("Oyunu Gönder")),
+        ],
+      ),
+    );
   }
 }

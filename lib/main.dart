@@ -4,13 +4,12 @@ import 'package:blokchain_based_voiting/ui/login_page.dart';
 import 'package:blokchain_based_voiting/ui/splash_page.dart';
 import 'package:flutter/material.dart';
 
-
-
 void main() {
   runApp(const MyApp());
 }
 
 final GlobalKey<NavigatorState> globalNavigator = GlobalKey<NavigatorState>(debugLabel: 'main');
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -24,8 +23,8 @@ class MyApp extends StatelessWidget {
       onUnknownRoute: (settings) => throw Exception('[Main Navigator] Unknown route: ${settings.name}'),
       routes: {
         '/': (c) => const SplashPage(),
-        '/voteFeed': (c) =>const VoteFeedPage(),
-        '/useVote':(c)=>const UseVotePage(),
+        '/voteFeed': (c) => const VoteFeedPage(),
+        // '/useVote':(c)=>const UseVotePage(),
         '/login': (c) => const LoginPage(),
       },
     );

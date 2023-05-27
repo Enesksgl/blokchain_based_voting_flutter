@@ -14,6 +14,13 @@ class Block {
     hash = calculate(data, previousHash, timeStamp);
   }
 
+  Block.withHash(DateTime ts, String dt, String ph,String h):
+    timeStamp=ts,
+    previousHash=ph,
+    data =dt,
+    hash =h;
+
+
   String calculate(String data, previousHash, DateTime timeStamp) {
     String sum;
     while (true) {

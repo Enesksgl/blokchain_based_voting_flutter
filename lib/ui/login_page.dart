@@ -1,5 +1,7 @@
-import 'package:blokchain_based_voiting/main.dart';
+import 'package:blokchain_based_voiting/common/api.dart';
 import 'package:flutter/material.dart';
+
+import '../main.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -9,6 +11,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  String tc = "", password = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
           Container(
             height: 150,
             color: Theme.of(context).primaryColor,
-            child: const Center(child: Text("Sign In", style: TextStyle(fontSize: 50, color: Colors.white))),
+            child: const Center(child: Text("Giriş Yap", style: TextStyle(fontSize: 50, color: Colors.white))),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -27,13 +31,15 @@ class _LoginPageState extends State<LoginPage> {
                 TextFormField(
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(prefixIcon: Icon(Icons.person), hintText: "TC Kimlik", labelText: "TC Kimlik", border: OutlineInputBorder()),
+                  onChanged: (value) => tc = value,
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(prefixIcon: Icon(Icons.lock), hintText: "Password", labelText: "Password", border: OutlineInputBorder()),
+                  decoration: const InputDecoration(prefixIcon: Icon(Icons.lock), hintText: "Şifre", labelText: "Şifre", border: OutlineInputBorder()),
+                  onChanged: (value) => password = value,
                 ),
-                saveButton("GİRİŞ"),
+                saveButton(),
                 TextButton(
                     onPressed: () {},
                     child: const Text(
@@ -48,19 +54,31 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget saveButton(String buttontext) {
+  Widget saveButton() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Container(
+      child: SizedBox(
         height: 50,
         child: FilledButton(
-          onPressed: () => globalNavigator.currentState!.pushReplacementNamed("/voteFeed"),
+          onPressed: () {
+            ApiService().login(tc, password).then((value) {
+              if (value) {
+                print(value);
+                globalNavigator.currentState!.pushReplacementNamed("/voteFeed");
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Kullanıcı adı veya şifre hatalı")));
+              }
+              setState(() {});
+            });
+          },
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               const SizedBox(width: 40),
-              Text(buttontext, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24)),
+              (ApiService.jwt == "" || ApiService.jwt == "unauthorized")
+                  ? const Text("GİRİŞ YAP", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24))
+                  : const CircularProgressIndicator(color: Colors.white),
               const SizedBox(width: 40),
             ],
           ),
